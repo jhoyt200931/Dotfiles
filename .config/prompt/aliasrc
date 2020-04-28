@@ -1,0 +1,171 @@
+#!/bin/bash
+
+###############
+### GENERAL ###
+###############
+
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+alias ......='cd ../../../../..'
+alias gh="cd ~/Github/"
+alias repos="cd ~/Github/"
+alias dot='/usr/bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
+alias pro="cd ~/Projects/"
+alias blo="cd ~/Blog/"
+alias clr="clear"
+alias mkdir="mkdir -pv"
+alias la="exa -la"
+alias las="exa -1"
+alias ls="exa"
+alias tree=exa_tree
+
+###############
+##### GIT #####
+###############
+
+alias gc="git commit"
+alias gcm="git commit -m"
+alias gca="git commit -v"
+alias gpuom="git push -u origin master"
+alias gpom="git push origin master"
+alias gpuo="git push -u origin"
+alias gpo="git push origin"
+alias gp="git push"
+alias gs="git status"
+alias gss="git status -s"
+alias giff="git diff"
+alias gslog="git shortlog"
+alias glog="git log --pretty=format:'%n%ar %n%Cred%h %Cblue%an <%ae> %n%Cgreen%s%n' --name-only"
+alias glogme="glog --author='\(Nicholas\)\|\(gebhartn\)'"
+alias gcount="git shortlog -s -n -e --all"
+alias gscount="git rev-list --all --count"
+
+###############
+### TOOLING ###
+###############
+
+alias todoread="cat ~/Github/todo/README.md"
+alias todoedit="nvim ~/Github/todo/README.md"
+alias todo=read_todos
+alias vim="nvim"
+alias icat="kitty +kitten icat"
+alias screenshot="scrot ~/Pictures/screenshots/%Y-%m-%d-%T-screenshot.png -d 5"
+alias add-linter="exec 3<&1;bash <&3 <(curl https://raw.githubusercontent.com/paulolramos/eslint-prettier-airbnb-react/master/eslint-prettier-config.sh 2> /dev/null)"
+alias fuck='sudo $(history -p !!)'
+alias update='sudo pacman -Syu'
+alias crap='npx create-react-app'
+alias fseed='prisma reset --force && prisma seed'
+alias stopdocker='docker stop $(docker ps -aq)'
+alias killdocker='docker rm $(docker ps -aq)'
+alias ncmpcpp='ncmpcpp -b ~/.ncmpcpp/bindings'
+alias todopush=push_todos
+alias todopull=pull_todos
+alias hunt=find_string_in_file
+alias mark=find_matching_file_or_subdir
+alias bklt=set_xbacklight
+alias vlme=set_volume
+alias wthr=get_weather
+alias clone=git_clone_remote
+alias bare=git_clone_bare
+alias spin=spin_postgres
+
+#############
+### UTILS ###
+#############
+
+exa_tree() {
+	exa -l --tree --git-ignore "$1"
+}
+
+# Push todos to github
+push_todos() {
+	pushd "$HOME/Github/todo/" && \
+	git add . && \
+	git commit -m "Bump @ $(date '+%m/%d/%Y %H:%M')" && \
+	git push && \
+	cd "$(dirs -l -0)" && dirs -c
+}
+
+read_todos() {
+	pushd "$HOME/Projects/colortodo" && \
+	todos "$1" && \
+	cd "$(dirs -l -0)" && dirs -c
+}
+
+# Pull todos from github
+pull_todos() {
+	pushd "$HOME/Github/todo/" && \
+	git pull && \
+	cd "$(dirs -l -0)" && dirs -c
+}
+
+# Find all files in dirs/subdirs containing search query
+find_string_in_file() {
+	grep \
+		--exclude-dir=node_modules \
+		--exclude-dir=coverage \
+		--exclude-dir=.fusebox \
+		--exclude-dir=.next \
+		--exclude-dir=dist \
+		--exclude-dir=.git \
+		-wroni "${1}" . | sort -u | grep -iv "^${1}" | sed "/^$/d" | grep -i --color=always "${1}"
+}
+
+# Find all sbudirs/filenames in dirs/subdirs matching query
+find_matching_file_or_subdir() {
+	find . \
+		-not -path "*node_modules*" \
+		-not -path "*.next*" \
+		-not -path "*dist*" \
+		-not -path "*.git*" \
+		-iname "*${1}*" | sort -u | grep -i --color=always "${1}"
+}
+
+# Change X screen brightness, when backlight keys increments aren't precise enough
+set_xbacklight() {
+	xbacklight -set "${1}"
+}
+
+# Change volume through pamixer, when volume keys increments aren't precise enough
+set_volume() {
+	pamixer --set-volume "${1}"
+}
+
+# Get weather report for specified location
+get_weather() {
+	if [[ "$2" == "-f" ]]; then
+		curl "http://wttr.in/${1}?M"
+	else
+		curl "http://wttr.in/${1}?0&M"
+	fi
+}
+
+# Clone a bare repo
+git_clone_bare() {
+	if [ $# -lt 2 ]; then
+		echo "Too few arguments"
+		exit 1
+	fi
+
+	git clone ~/Github/"$1".git "$2"
+}
+
+# Clone remote repo
+git_clone_remote() {
+	if [ $# -lt 2 ]; then
+		echo "Too few arguments"
+		exit 1
+	fi
+
+	git clone https://github.com/"$1"/"$2".git
+}
+
+# Spin up postgresql container
+spin_postgres() {
+	docker run --rm --name pg-docker \
+		-e POSTGRES_PASSWORD=postgres \
+		-d -p 5432:5432 \
+		-v $HOME/Docker/volumes/postgres/"$1":/var/lib/postgresql/data postgres
+}

@@ -1,0 +1,10 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =8
+let g:netrw_dirhist_8='/home/nil'
+let g:netrw_dirhist_7='/home/nil/Projects/portfolio/src/pages'
+let g:netrw_dirhist_6='/home/nil/Projects/portfolio'
+let g:netrw_dirhist_5='/home/nil'
+let g:netrw_dirhist_4='/home/nil/Projects/Intro-Python-II/src'
+let g:netrw_dirhist_3='/home/nil/Projects/mission-control/client/src/middleware'
+let g:netrw_dirhist_2='/home/nil/Projects/mission-control-be/prisma/seeds'
+let g:netrw_dirhist_1='/home/nil'
